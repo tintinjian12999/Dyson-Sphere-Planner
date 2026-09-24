@@ -1,64 +1,107 @@
-# DSP Factory Calculator
+# Dyson Sphere Planner · 星鏈工坊
 
-**English** · [中文](README.zh.md)
+《戴森球計畫》的工廠區塊與建造配置規劃工具。延伸自 [0fuz/dsp-calc](https://github.com/0fuz/dsp-calc)，目前涵蓋固定資料快照中的全部 173 種實體物品（151 種有製程，22 種外部資源／掉落物），包含建築、材料、矩陣與戰鬥物資。
 
-A single-page, zero-build calculator for **[Dyson Sphere Program](https://store.steampowered.com/app/1366540/Dyson_Sphere_Program/)** factories. Pick a target item and rate, and it solves the full crafting tree, packs machines into logistics stations (ILS/PLS), and draws the layout — including what each station **imports** and **exports**.
+## 主要功能
 
-**▶ Live:** https://0fuz.github.io/dsp-calc/
+- **物品圖鑑**：173 種物品的圖示卡片、分類與中英文搜尋。
+- **生產網路**：輸入每分鐘目標產量，自動展開上游製程、合併需求並連接各區塊；共同產物會抵扣需求並列出剩餘量。
+- **產線配置**：傳送帶、行星物流站或星際物流站接口；單列、三列分流、三列獨立供料，以及自訂每列設備上限。
+- **設備與增產**：選擇輸送帶、分揀器、製造台、熔爐、化工廠與研究站等級；增產設定可全域套用或個別覆寫。
+- **保存與匯出**：瀏覽器本機保存、計畫 JSON 匯入／匯出、配置 SVG 與建造清單 CSV。
 
-![Hub view — Small Carrier Rocket factory laid out across logistics stations](assets/screenshot-hub.png)
+使用原生 JavaScript、HTML 與 CSS，沒有前端建置步驟或後端服務需求。生產計畫保存在瀏覽器本機；換瀏覽器或裝置時可透過 JSON 搬移。
 
-## Why this, not FactorioLab?
+## 快速啟動
 
-Every other DSP calculator — FactorioLab, dyson-calculator.com, dsp-ratios.com — answers *"how many machines and belts?"* and stops at a number, a list, or an abstract Sankey/flow graph. None of them place a building or route a belt. This tool's point is the next step: it turns the ratio into a **drawable, grid-based station layout** you can use to plan a base.
+需要 Node.js 22 或以上；啟動與測試沒有外部 runtime 依賴，不需安裝套件。只有重新抽取資料的開發腳本需要先執行 `npm ci`（OpenCC 中文轉換）。
 
-- **A spatial layout, not a table.** Real DSP building footprints on a tile grid, tier-correct icons, belt counts, and two views (logistics-station *hub* and flat *belt* manifold) with pan/zoom — the step numbers-only calculators leave you to do by hand.
-- **It plans your ILS/PLS stations.** Crafts are bin-packed into Interstellar / Planetary Logistics Station slot budgets, with a concrete per-station **import↓ / export↑ contract** and an over-capacity warning. No other tool models stations as logistics entities.
-- **A recipe *matrix*, not a tree.** A square M·x=b system (Gaussian elimination), so oil-cracking loops, byproduct hydrogen, and self-feeding recipes balance correctly — and it errors loudly on an inconsistent recipe set instead of mis-counting.
-- **Zero-install, offline.** One page, no build, no CDN; the whole build lives in a shareable compressed URL; installable as a PWA and works offline.
-
-**Use FactorioLab instead** when you want power-draw numbers, a cost-minimizing solver that auto-picks among competing recipes, or the complete DSP recipe database. This is a focused *layout* planner on a curated recipe subset — single-planet, no power/pollution modeling, not a blueprint exporter. Use it for the spatial / station-packing step the calculators skip.
-
-## Features
-
-- **Recipe solver** — exact machine counts and item rates for any target item / output rate.
-- **Station layout** — assemblers/smelters packed into Interstellar (ILS) and Planetary (PLS) Logistics Stations, with a per-station import↓ / export↑ contract and belt throughput.
-- **Proliferator** — extra-products math (Mk.I/II/III), applied to intermediate crafts.
-- **Presets** — late-game import boundaries (graphene, carbon nanotube, sulfuric acid, organic crystal, diamond, raw ores, etc.) treated as imported rather than crafted.
-- **Hub & belt views** — toggle between logistics-station grouping and a flat belt layout.
-- **i18n** — UI in Русский · English · 中文 with localized ILS/PLS abbreviations (МЛС/ПЛС · ILS/PLS · 星际站/行星站). Item names are localized in **English and 中文** (Russian falls back to English item names). Language persists.
-- **Share links** — the full configuration (target, rate, options, view, language, panel state) is encoded in the URL.
-- **Export** — copy a parts list as text, or download the layout as a PNG.
-- **PWA / offline** — installable, works without a network connection after first load.
-- **Responsive** — mouse pan/zoom on desktop, one-finger pan and pinch-zoom on touch.
-
-State is saved to the URL and `localStorage`, so a link reproduces exactly what you see.
-
-## Screenshots
-
-A single logistics station, packed with six chained crafts — note the ILS badge, the import↓ / export↑ contract with rates, per-craft headers (item + proliferator), and the real building footprint:
-
-![Station card — a 6-craft Processor station](assets/screenshot-station.png)
-
-The same factory in **belt view** — a flat manifold layout with import sources feeding the craft row:
-
-![Belt view — flat manifold layout](assets/screenshot-belt.png)
-
-## Running locally
-
-It's a single static page — no build step. Either open `index.html` directly, or serve the folder (the service worker / PWA features need `http(s)`):
-
-```sh
-python3 -m http.server 8000
-# → http://localhost:8000
+```powershell
+git clone https://github.com/tintinjian12999/Dyson-Sphere-Planner.git
+cd Dyson-Sphere-Planner
+npm start
 ```
 
-## See also
+開啟 [http://127.0.0.1:4173](http://127.0.0.1:4173)。開發伺服器僅監聽本機；使用 `Ctrl+C` 停止。若連接埠已被使用，可在 PowerShell 先執行 `$env:PORT = "4174"`，再執行 `npm start`。
 
-- [Awesome Dyson Sphere Program](https://github.com/0fuz/awesome-dyson-sphere-program) — a community-curated list of DSP tools, mods, and resources (which I also maintain).
+也可將靜態檔案放到支援 ES modules 的 HTTP 靜態伺服器；請勿直接以 `file://` 開啟 `index.html`。
 
-## Credits & licensing
+## 使用
 
-- **Game:** *Dyson Sphere Program* © [Youthcat Studio](https://store.steampowered.com/developer/YouthcatGames/) / Gamera Games. This is an unofficial fan-made tool, not affiliated with or endorsed by the developers.
-- **Icons:** sprite from **[FactorioLab](https://github.com/factoriolab/factoriolab)** (MIT License), bundled in `assets/icons.webp`.
-- **This project's code** is released under the MIT License (see [`LICENSE`](LICENSE)).
+1. 點選左側目標產品，開啟物品圖鑑。可依材料、建築、科研矩陣、黑霧戰鬥物資、資源分類，或使用中英文搜尋；點選圖示卡片立即更新計畫。需求產量可另行調整，預設為電磁渦輪 600／分鐘。
+2. 生產網路可拖曳區塊、縮放、平移；「專注畫布」可隱藏設定面板。
+3. 選取區塊，右側可查看投入物料、設備數量及利用率。
+4. 可選全域增產劑等級與額外產出／生產加速；各區塊可改為個別設定，含明確停用。
+5. 「建造接口」可選傳送帶直出、行星物流站或星際物流站；右側與配置頁可為單一區塊覆寫。傳送帶模式保留輸入／輸出端點，區塊間的實際走帶需自行連接。
+6. 「產線排列 Layout」可選單列、三列分流或三列獨立供料；多列每列設備上限可自訂，區塊配置留空即跟隨全域。主幹與分支容量分別檢查。
+7. 按「展開建造配置」，查看每組產線的設備、輸送帶、分揀器、噴塗機、電力塔與物流站設定。選單可切換末組產線，配置圖可縮放及水平捲動。
+8. 建造清單彙整全計畫的建築、外部供應及剩餘共同產物。供需示意未估算的帶長與電力塔會明列「未估部分」。
+9. 計畫自動保存在此瀏覽器。可匯出／匯入 JSON、匯出獨立 SVG 配置圖及 UTF-8 CSV 清單。
+
+## 計算基準
+
+- 全計畫可選輸送帶 Mk.I–III、分揀器 Mk.I–III、製造台 Mk.I–III／重組式製造台、電弧／位面／負熵熔爐、化工廠／量子化工廠、矩陣／自演化研究站。舊計畫保留 Mk.III、位面熔爐預設；接口可選傳送帶、行星物流站（4 槽）或星際物流站（5 槽）。
+- 基礎原料由外部送達。啟用增產時，增產劑亦為外部耗材，消耗量包含所有投入物料的噴塗，不展開作為噴塗耗材的增產劑製造鏈，也不假設增產劑自噴塗；選擇增產劑本身為目標產品時仍展開其製造配方。
+- 固定每道配方一個工廠區塊。設備數按模板有效速度向上取整，物料需求維持目標流量；依滿載帶速分組，單列每組最多 12 台；多列提供三列分流或三列獨立供料，每列上限可設定 1–60 台（預設 4），實際依帶速縮減。分流模式共用一站；獨立供料模式每列一站；傳送帶模式不放站。行星物流站槽位不足時，增產劑改由獨立外接帶供應。
+- 配方資料固定於 FactorioLab commit `3709b0682893e812db365dd31b3d2bb5ef35a6f1`，快照聲明遊戲版本 `0.10.29.21950`，不宣稱為最新遊戲版本。
+
+完整依據、公式與信心程度見 [docs/SOURCES.md](docs/SOURCES.md)；確認的範圍見 [docs/SPEC.md](docs/SPEC.md)。
+
+## 驗證
+
+```powershell
+npm run check
+npm test
+```
+
+37 項測試涵蓋獨立算例、全產品、增產與三種接口組合、合併需求、既有供應差額、取整、帶速／分揀器／槽位限制、地面路徑交叉、低產量顯示及 SVG 輸出。人工瀏覽器測試記錄見 [docs/QA.md](docs/QA.md)。
+
+**配置已做模型檢查，尚未在遊戲中實際建造驗證。** 兩種物流站均採 5×5 的保守模板預留，並非實體占地測量。球面格線、實體接口、噴塗供料的架高斜坡與物流運力仍需校核；介面保留此標示。SVG 是建造參考圖，不能直接匯入遊戲。輸送帶數量為列內格線路徑估算，不含跨列分流分配網路、區塊間連接及架高斜坡額外長度。三列分流左側是接線示意，尚未求解實際格線路徑。
+
+## 設備等級與輸送瓶頸
+
+左側「設備等級」可選全計畫的輸送帶、分揀器、製造台、熔爐、化工廠與研究站。選擇會保存在計畫 JSON。分揀器按未堆疊的單件搬運計算；目前不提供集裝分揀器或堆疊科技。
+
+製造台／熔爐的格線模板保留三個輸入、三個輸出分揀器接口，會搜尋可用的數量分配。若輸送帶或分揀器不足以維持設備滿速，會顯示「名義產能 → 模板有效產能」，按較低的供料能力估算所需設備數，並保留實際目標物料流量。這是固定模板的瓶頸模型，不是遊戲內降速設定。
+
+## 全產品的配方與配置範圍
+
+- 預設採一般配方；氫與精煉油共用電漿精煉，反物質採質能儲存。共同產物先供給計畫內需求，剩餘量另列，不會虛構消失或重複製造。
+- 每種產品一條預設路線；尚未提供稀有礦替代配方、X 射線裂解／重整循環、分餾氘、巨行星採集及放電回收的配方切換。氘預設粒子對撞路線，採集與黑霧掉落物作外部供應。
+- 不支援額外產出的配方會顯示並改用加速；沒有可噴塗投入的製程不套用增產。
+- 製造台／熔爐中最多三種原料且單一產出的配方沿用格線模型；其餘設備、多產物及四種以上原料配方採明確標示的供需示意。多物料使用多座物流站，沒有假造輸送帶格數或電力塔數量。
+- 射線接收站按無透鏡且持續滿供能計算；充電需足夠電網功率。電力、實體端口、堆疊與遊戲內施工尚未模擬。
+
+## 程式結構
+
+| 檔案 | 職責 |
+|---|---|
+| `src/catalog.js`、`src/data.js` | 固定遊戲資料、設備參數與產品範圍 |
+| `src/planner.js` | 純函式物料平衡與需求展開 |
+| `src/transport.js` | 設備等級對應的帶速、分揀器接口配置及受限產能 |
+| `src/schematic.js` | 新設備、多原料與共同產物的供需示意 |
+| `src/templates.js` | 產線分組、格線配置與建築清單 |
+| `src/state.js` | 計畫格式、輸入驗證與持久化 |
+| `src/render.js` | 生產網路與 SVG 配置繪圖 |
+| `src/app.js` | 互動、選取、拖曳、增產覆寫與匯入匯出 |
+| `scripts/server.mjs` | 無依賴本機靜態伺服器 |
+| `scripts/extract-data.mjs` | 從固定的原始快照重新抽出資料與圖示座標 |
+
+既有供應的差額計算已預留在核心並有測試，但尚未提供編輯介面。跨星球規劃及遊戲藍圖匯出屬後續範圍。
+
+## 重新抽取資料
+
+遊戲資料與圖示已包含在倉庫中；正常啟動與測試不需要重新抽取。若要重新產生固定快照的資料模組：
+
+```powershell
+npm ci
+node scripts/extract-data.mjs
+npm run check
+npm test
+```
+
+此腳本讀取倉庫內的資料快照與原首頁，不會自動升級遊戲版本。來源及授權見 [docs/SOURCES.md](docs/SOURCES.md)。
+
+## 授權
+
+保留原專案的 MIT [LICENSE](LICENSE)；FactorioLab 授權保留於 [docs/LICENSE-FactorioLab](docs/LICENSE-FactorioLab)。原首頁保留為 `upstream.html`，原說明見 [docs/UPSTREAM.md](docs/UPSTREAM.md)。遊戲與圖示權利歸原權利人所有，本工具未獲 Youthcat Studio 或 Gamera Games 官方背書。
